@@ -42,12 +42,11 @@ export default class Floor extends Container {
     }
 
     public makePassenger(): void {
-        setInterval( () => {
-            let wantedLevel = getRandomFloor(1, FloorsNumber, this._level);
-            let passenger = new Passenger(this._level, this.floor.width, this._passengersQueue.length + 1, wantedLevel);
+        // setInterval( () => {
+            let passenger = new Passenger(this._level, this.floor.width, this._passengersQueue.length + 1);
             this.floor.addChild(passenger);
             this._passengersQueue.push(passenger);
-        }, 4000);
+        // }, 4000);
     }
 
     private removePassenger(): void {

@@ -12,7 +12,7 @@ export default class Lift extends Container {
         super();
 
         this.drawLift();
-        this.move(8);
+        this.move(3);
     }
 
     private drawLift() {

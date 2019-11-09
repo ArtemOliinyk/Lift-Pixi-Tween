@@ -28,7 +28,7 @@ export default class House extends Container {
         let lift: Lift = new Lift();
 
         //make floors
-        for (let i:number = 1; i <= FloorsNumber ; i++)
+        for (let i = 1; i <= FloorsNumber ; i++)
             this.house.addChild(new Floor(i, lift.width));
         this.house.endFill();
         this.house.addChild(lift);
