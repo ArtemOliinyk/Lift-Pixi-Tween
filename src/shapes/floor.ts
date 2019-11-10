@@ -7,7 +7,7 @@ export default class Floor extends Container {
     public floorGraphic: Graphics;
     public readonly level: number;
     public floorStart: number;
-    private _passengersQueue: Passenger [] = [];
+    public passengersQueue: Passenger [] = [];
     private _interval: number = getRandomInt(1, 4) * 1000;
 
     constructor(level: number, floorStart: number) {
@@ -43,15 +43,18 @@ export default class Floor extends Container {
 
     public makePassenger(): void {
         setTimeout( () => {
-            let passenger = new Passenger(this.level, this.floorGraphic.width, this._passengersQueue.length + 1);
+            let passenger = new Passenger(this.level, this.floorGraphic.width, this.passengersQueue.length + 1);
             this.floorGraphic.addChild(passenger);
-            this._passengersQueue.push(passenger);
+            this.passengersQueue.push(passenger);
         }, this._interval);
     }
 
-    private removePassenger(): void {
-        this._passengersQueue.shift();
-        // this.removeChild();
+    public removePassenger(id: string): void {
+        let removedPass = this.passengersQueue.find(pass => pass.id === id);
+        if (removedPass) {
+            this.floorGraphic.removeChild(removedPass.passengerGraphic);
+            this.passengersQueue.shift();
+        }
     }
 
 }

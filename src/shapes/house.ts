@@ -1,5 +1,5 @@
 import {Graphics, Container} from 'pixi.js';
-import {BottomPadding, FloorsNumber} from '../constants'
+import {BottomPadding, FloorsNumber, PICK_PASSENGER} from '../constants'
 import Floor from "./floor";
 import Lift from "./lift";
 import TWEEN from "@tweenjs/tween.js";
@@ -26,6 +26,8 @@ export default class House extends Container {
         this.houseGraphic.addChild(this.lift.liftGraphic);
         this.drawFloors();
         this.addChild(this.houseGraphic);
+        let pickEvent = new CustomEvent(PICK_PASSENGER);
+        window.dispatchEvent(pickEvent);
     }
 
     private drawCascade(): void {

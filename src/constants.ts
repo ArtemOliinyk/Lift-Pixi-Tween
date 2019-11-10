@@ -1,4 +1,4 @@
-export const FloorsNumber = 3;
+export const FloorsNumber = 4;
 export const LiftCapacity = 1;
 
 export const DistanceBetweenFloors = 70;
