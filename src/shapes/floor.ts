@@ -1,33 +1,33 @@
 import {Graphics, Container, Text, TextStyle} from 'pixi.js';
-import {BottomPadding, DistanceBetweenFloors, FloorsNumber, getRandomFloor, Padding} from '../constants'
+import {BottomPadding, DistanceBetweenFloors, FloorsNumber, getRandomFloor, getRandomInt, Padding} from '../constants'
 import Passenger from "./passenger";
+import House from "./house";
 
 export default class Floor extends Container {
-    public floor: Graphics;
-    private readonly _level: number;
+    public floorGraphic: Graphics;
+    public readonly level: number;
     public floorStart: number;
     private _passengersQueue: Passenger [] = [];
+    private _interval: number = getRandomInt(1, 4) * 1000;
 
     constructor(level: number, floorStart: number) {
         super();
-        this._level = level;
+        this.level = level;
         this.floorStart = floorStart + Padding;
         this.drawFloor();
         this.makePassenger();
     }
 
     private drawFloor(): void {
-        this.floor = new Graphics;
-        let distance = DistanceBetweenFloors * this._level;
-        this.floor.lineStyle(2, 0);
-        this.floor.beginFill(0xFF2B3E, 0);
+        this.floorGraphic = new Graphics();
+        let distance = DistanceBetweenFloors * this.level;
+        this.floorGraphic.lineStyle(2, 0);
 
-        this.floor.moveTo(window.innerWidth - 600, window.innerHeight - distance - BottomPadding);
-        this.floor.lineTo(this.floorStart, window.innerHeight  - distance - BottomPadding);
-        this.displayTextFloor(`Level ${this._level}`, distance);
+        this.floorGraphic.moveTo(window.innerWidth - 550, window.innerHeight - distance - BottomPadding);
+        this.floorGraphic.lineTo(this.floorStart, window.innerHeight - distance - BottomPadding);
+        this.displayTextFloor(`Level ${this.level}`, distance);
 
-        this.floor.endFill();
-        this.addChild(this.floor);
+        this.addChild(this.floorGraphic);
     }
 
     private displayTextFloor(message: string, distance: number): void {
@@ -38,15 +38,15 @@ export default class Floor extends Container {
         let msg = new Text(message, msgStyle);
         msg.position.set(window.innerWidth - 700, window.innerHeight - distance);
 
-        this.floor.addChild(msg);
+        this.floorGraphic.addChild(msg);
     }
 
     public makePassenger(): void {
-        // setInterval( () => {
-            let passenger = new Passenger(this._level, this.floor.width, this._passengersQueue.length + 1);
-            this.floor.addChild(passenger);
+        setTimeout( () => {
+            let passenger = new Passenger(this.level, this.floorGraphic.width, this._passengersQueue.length + 1);
+            this.floorGraphic.addChild(passenger);
             this._passengersQueue.push(passenger);
-        // }, 4000);
+        }, this._interval);
     }
 
     private removePassenger(): void {
