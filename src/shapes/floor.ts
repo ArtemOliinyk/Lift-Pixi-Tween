@@ -1,6 +1,7 @@
 import {Graphics, Container, Text, TextStyle} from 'pixi.js';
 import {BottomPadding, DistanceBetweenFloors, FloorsNumber, getRandomFloor, getRandomInt, Padding} from '../constants'
 import Passenger from "./passenger";
+import TWEEN from "@tweenjs/tween.js";
 import House from "./house";
 
 export default class Floor extends Container {
@@ -8,7 +9,7 @@ export default class Floor extends Container {
     public readonly level: number;
     public floorStart: number;
     public passengersQueue: Passenger [] = [];
-    private _interval: number = getRandomInt(1, 4) * 1000;
+    private _interval: number = getRandomInt(4, 20) * 1000;
 
     constructor(level: number, floorStart: number) {
         super();
@@ -42,7 +43,7 @@ export default class Floor extends Container {
     }
 
     public makePassenger(): void {
-        setTimeout( () => {
+        setInterval(() => {
             let passenger = new Passenger(this.level, this.floorGraphic.width, this.passengersQueue.length + 1);
             this.floorGraphic.addChild(passenger);
             this.passengersQueue.push(passenger);
@@ -54,7 +55,16 @@ export default class Floor extends Container {
         if (removedPass) {
             this.floorGraphic.removeChild(removedPass.passengerGraphic);
             this.passengersQueue.shift();
+            this.updateQueue();
         }
     }
 
+    public updateQueue(): void {
+        this.passengersQueue.forEach((passenger, key) => {
+            passenger.positionNumber = key + 1;
+            new TWEEN.Tween(passenger.passengerGraphic)
+                .to({x: -(this.floorGraphic.width - Passenger.width * passenger.positionNumber)}, 1000)
+                .start();
+        })
+    }
 }

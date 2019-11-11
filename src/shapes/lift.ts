@@ -21,7 +21,6 @@ export default class Lift extends Container {
 
     constructor() {
         super();
-
         this.drawLift();
         window.addEventListener(PICK_PASSENGER, () => this.start());
     }
@@ -48,12 +47,9 @@ export default class Lift extends Container {
 
     private start(): void {
         let neededFloor = House.getInstance().floors.find(floor => floor.passengersQueue.length > 0);
-        if (neededFloor) {
-             return this.pickPassenger(neededFloor.passengersQueue[0]);
-        }
-        setTimeout(() => {
-            this.start()
-        }, 3000);
+        if (neededFloor)
+            return this.pickPassenger(neededFloor.passengersQueue[0]);
+        setTimeout(() => this.start(), 3000);
     }
 
     public addPassenger(passenger: Passenger): void {
@@ -64,7 +60,7 @@ export default class Lift extends Container {
 
     public pickPassenger(passenger: Passenger) {
         const moveToPassenger = new TWEEN.Tween(this.liftGraphic)
-            .to({y: -DistanceBetweenFloors * (passenger.floorLevel - 1)}, DurationBetweenFloors * Math.abs(this.currentLevel -passenger.floorLevel))
+            .to({y: -DistanceBetweenFloors * (passenger.floorLevel - 1)}, DurationBetweenFloors * Math.abs(this.currentLevel - passenger.floorLevel))
             .onComplete(() => {
                 this.currentLevel = passenger.floorLevel;
                 passenger.moveInsideLift();
@@ -76,7 +72,7 @@ export default class Lift extends Container {
             .onComplete(() => {
                 this.currentLevel = passenger.wantedLevel;
                 passenger.moveOut();
-                this.start()
+                setTimeout(() => this.start(), 200)
             })
             .delay(800);
         moveToPassenger.start().chain(moveToFloor);

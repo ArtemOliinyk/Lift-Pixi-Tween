@@ -29,7 +29,6 @@ export default class Passenger extends Container {
         this.wantedLevel = getRandomFloor(1, FloorsNumber, this.floorLevel);
 
         this.drawPassenger();
-        // this.moveForward();
         this.moveToQueue();
     }
 
@@ -37,16 +36,14 @@ export default class Passenger extends Container {
         this.passengerGraphic = new Graphics();
 
         let color = this.wantedLevel > this.floorLevel ? Blue : Green;
-        this.passengerGraphic.lineStyle(2, color);
+        this.passengerGraphic.lineStyle(1, color);
 
         this.passengerGraphic.drawRect(
             House.rightPadding - Padding * 2,
             window.innerHeight - (DistanceBetweenFloors * this.floorLevel) - Padding * 2,
             Passenger.width,
             Passenger.height);
-
         this.displayFloorNumber(`${this.wantedLevel}`);
-
         this.addChild(this.passengerGraphic);
     }
 
@@ -73,7 +70,7 @@ export default class Passenger extends Container {
 
     private moveToQueue(): void {
         const moveLeft = new TWEEN.Tween(this.passengerGraphic)
-            .to({x: -(this.endLevel - this.width * this.positionNumber)}, 2000);
+            .to({x: -(this.endLevel - this.width * this.positionNumber)}, 600);
         moveLeft.start();
     }
 
