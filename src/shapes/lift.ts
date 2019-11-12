@@ -46,47 +46,31 @@ export default class Lift extends Container {
     }
 
     private start(): void {
-        // let neededFloor = Math.min.apply(null, House.getInstance().floors.filter(floor => floor.level));
-
-        // let neededFloors = House.getInstance().floors.filter(floor => floor.passengersQueue.length > 0);
-        // let num;
-        // neededFloors.forEach((floor) => {
-        //     num = Math.abs(this.currentLevel - floor.level) === 0 ? floor : ;
-        // });
         let floor = this.findFloor();
-        if (floor)
+        if (floor instanceof Floor)
             return this.pickPassenger(floor.passengersQueue[0]);
-        // let neededFloor = House.getInstance().floors.find(floor => floor.passengersQueue.length > 0);
-        // if (neededFloor)
-        //     return this.pickPassenger(neededFloor.passengersQueue[0]);
         setTimeout(() => this.start(), 3000);
     }
 
-    private findFloor(): Floor {
+    private findFloor(): Floor | boolean {
         let neededFloors = House.getInstance().floors.filter(floor => floor.passengersQueue.length > 0);
-        // for (let i = 0; i < neededFloors.length; i++) {
-        //     for (let j = 0; j < FloorsNumber; j++){
-        //         if (Math.abs(this.currentLevel - neededFloors[i].level) === j)
-        //             return neededFloors[i];
-        //     }
-        // }
-        let fl = neededFloors.find(floor => floor.level === this.currentLevel);
-        if (!fl) {
-            for (let i = 1; i <= FloorsNumber; i++) {
-                let fl2 = this.levelFind(i);
-                if (fl2)
-                    return fl2;
-            }
+        let currentFloor = neededFloors.find(floor => floor.level === this.currentLevel);
+        if (currentFloor)
+            return currentFloor;
+        for (let i = 1; i <= FloorsNumber; i++) {
+            let fl2 = this.levelFind(i);
+            if (fl2)
+                return fl2;
         }
-        return fl;
+        return false;
     }
 
-    public levelFind(level: number) {
+    public levelFind(level: number): Floor | boolean {
         let neededFloors = House.getInstance().floors.filter(floor => floor.passengersQueue.length > 0);
-        let foundFloor = neededFloors.find(floor => floor.level === (this.currentLevel + level || this.currentLevel - level));
+        let foundFloor = neededFloors.find(floor => (floor.level === this.currentLevel + level) || (floor.level === this.currentLevel - level));
         if (foundFloor)
             return foundFloor;
-        return 0;
+        return false;
     }
 
     public addPassenger(passenger: Passenger): void {
