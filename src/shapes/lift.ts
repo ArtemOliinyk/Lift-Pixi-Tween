@@ -47,8 +47,12 @@ export default class Lift extends Container {
 
     private start(): void {
         let floor = this.findFloor();
-        if (floor instanceof Floor)
-            return this.pickPassenger(floor.passengersQueue[0]);
+        if (floor instanceof Floor){
+            this.pickPassenger(floor.passengersQueue[0]);
+            setTimeout(() => this.moveToFloor(),DurationBetweenFloors * Math.abs(this.currentLevel - floor.passengersQueue[0].floorLevel) +50);
+            return
+        }
+
         setTimeout(() => this.start(), 3000);
     }
 
@@ -58,9 +62,9 @@ export default class Lift extends Container {
         if (currentFloor)
             return currentFloor;
         for (let i = 1; i <= FloorsNumber; i++) {
-            let fl2 = this.levelFind(i);
-            if (fl2)
-                return fl2;
+            let foundLevel = this.levelFind(i);
+            if (foundLevel)
+                return foundLevel;
         }
         return false;
     }
@@ -94,7 +98,6 @@ export default class Lift extends Container {
     }
 
     public pickPassenger(passenger: Passenger) {
-        let nextPass = passenger;
         const moveToPassenger = new TWEEN.Tween(this.liftGraphic)
             .to({y: -DistanceBetweenFloors * (passenger.floorLevel - 1)}, DurationBetweenFloors * Math.abs(this.currentLevel - passenger.floorLevel))
             .onComplete(() => {
@@ -104,26 +107,31 @@ export default class Lift extends Container {
                 this.addPassenger(passenger);
             });
 
+        // const moveToFloor = new TWEEN.Tween(this.liftGraphic)
+        //     .to({y: -DistanceBetweenFloors * (passenger.wantedLevel - 1)}, DurationBetweenFloors * Math.abs(passenger.floorLevel - passenger.wantedLevel))
+        //     .onComplete(() => {
+        //         this.currentLevel = passenger.wantedLevel;
+        //         passenger.moveOut();
+        //         setTimeout(() => this.start(), 400)
+        //     })
+        //     .delay(800);
+        moveToPassenger.start()//.chain(moveToFloor);
+    }
 
-        const moveToFloor = new TWEEN.Tween(this.liftGraphic)
-            .onStart(() => {
-                let minWanted =  Math.min(...this.passengers.map(pas => pas.wantedLevel));
-                nextPass = this.passengers.find(pass => pass.wantedLevel === minWanted);
-            })
-            .to({y: -DistanceBetweenFloors * (nextPass.wantedLevel - 1)}, DurationBetweenFloors * Math.abs(nextPass.floorLevel - nextPass.wantedLevel))
+    public moveToFloor(): TWEEN.Tween {
+        let minWanted =  Math.min(...this.passengers.map(pas => Math.abs(this.currentLevel - pas.wantedLevel)));
+        let passenger: Passenger = this.passengers.find(pass => Math.abs(this.currentLevel - pass.wantedLevel) === minWanted);
+        return new TWEEN.Tween(this.liftGraphic)
+            .to({y: -DistanceBetweenFloors * (passenger.wantedLevel - 1)}, DurationBetweenFloors * Math.abs(passenger.floorLevel - passenger.wantedLevel))
             .onComplete(() => {
-                this.currentLevel = nextPass.wantedLevel;
-                nextPass.moveOut();
-                console.log(22, this.passengers)
-
-                // if (this.passengers.length) {
-                //     console.log(22, this.passengers)
-                    //     this.pickPassenger(this.passengers[0]);
-                // }
+                this.currentLevel = passenger.wantedLevel;
+                passenger.moveOut();
+                if (this.passengers.length > 0)
+                    return this.moveToFloor();
                 setTimeout(() => this.start(), 400)
             })
-            .delay(800);
-        moveToPassenger.start().chain(moveToFloor);
+            .delay(800)
+            .start();
     }
 
     public removePassenger(id: string) {
