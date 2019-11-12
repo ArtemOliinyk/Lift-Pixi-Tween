@@ -63,7 +63,7 @@ export default class Floor extends Container {
         this.passengersQueue.forEach((passenger, key) => {
             passenger.positionNumber = key + 1;
             new TWEEN.Tween(passenger.passengerGraphic)
-                .to({x: -(this.floorGraphic.width - Passenger.width * passenger.positionNumber)}, 1000)
+                .to({x: -(this.floorGraphic.width - Passenger.width * passenger.positionNumber)}, 500)
                 .start();
         })
     }

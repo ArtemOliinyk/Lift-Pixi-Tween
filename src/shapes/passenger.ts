@@ -74,16 +74,16 @@ export default class Passenger extends Container {
         moveLeft.start();
     }
 
-    public moveInsideLift() {
+    public moveInsideLift(key: number, count: number) {
         new TWEEN.Tween(this.passengerGraphic)
-            .to({x: -this.endLevel}, 800)
+            .to({x: -(this.endLevel + (key) * this.width)}, 800 / count)
             .start();
     }
 
     public moveOut(): void {
         new TWEEN.Tween(this.passengerGraphic)
             .to({x: 0}, 400)
-            .onComplete(() => House.getInstance().lift.removePassenger(this.id))
+            .onStart(() => House.getInstance().lift.removePassenger(this.id))
             .start();
     }
 

@@ -1,5 +1,5 @@
 export const FloorsNumber = 5;
-export const LiftCapacity = 1;
+export const LiftCapacity = 2;
 
 export const DistanceBetweenFloors = 70;
 export const DurationBetweenFloors = 1000;
