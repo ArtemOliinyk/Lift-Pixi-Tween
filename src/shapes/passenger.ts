@@ -5,7 +5,6 @@ import {
     FloorsNumber,
     getRandomFloor,
     Green,
-    LiftCapacity,
     Padding,
 } from '../constants'
 import House from "./house";
@@ -14,7 +13,7 @@ import TWEEN from "@tweenjs/tween.js";
 export default class Passenger extends Container {
     public passengerGraphic: Graphics;
     public floorLevel: number;
-    public endLevel: number;
+    private readonly _endLevel: number;
     public positionNumber: number;
     public wantedLevel: number;
     public static height: number = 40;
@@ -24,7 +23,7 @@ export default class Passenger extends Container {
     constructor(level: number, end: number, position: number) {
         super();
         this.floorLevel = level;
-        this.endLevel = end;
+        this._endLevel = end;
         this.positionNumber = position;
         this.wantedLevel = getRandomFloor(1, FloorsNumber, this.floorLevel);
 
@@ -49,13 +48,13 @@ export default class Passenger extends Container {
 
     private moveToQueue(): void {
         const moveLeft = new TWEEN.Tween(this.passengerGraphic)
-            .to({x: -(this.endLevel - this.width * this.positionNumber)}, 600);
+            .to({x: -(this._endLevel - this.width * this.positionNumber)}, 600);
         moveLeft.start();
     }
 
     public moveInsideLift(key: number, count: number) {
         new TWEEN.Tween(this.passengerGraphic)
-            .to({x: -(this.endLevel + (key) * this.width)}, 800 / count)
+            .to({x: -(this._endLevel + key * this.width)}, 800 / count)
             .onStart(() => House.getInstance().floors[this.floorLevel - 1].removePassenger(this.id))
             .start();
     }

@@ -7,14 +7,14 @@ import House from "./house";
 export default class Floor extends Container {
     public floorGraphic: Graphics;
     public readonly level: number;
-    public floorStart: number;
+    private readonly _floorStart: number;
     public passengersQueue: Passenger [] = [];
     private _interval: number = getRandomInt(4, 20) * 1000;
 
     constructor(level: number, floorStart: number) {
         super();
         this.level = level;
-        this.floorStart = floorStart + Padding;
+        this._floorStart = floorStart + Padding;
         this.drawFloor();
         this.makePassenger();
     }
@@ -25,7 +25,7 @@ export default class Floor extends Container {
         this.floorGraphic.lineStyle(2, 0);
 
         this.floorGraphic.moveTo(window.innerWidth - 550, window.innerHeight - distance - BottomPadding);
-        this.floorGraphic.lineTo(this.floorStart, window.innerHeight - distance - BottomPadding);
+        this.floorGraphic.lineTo(this._floorStart, window.innerHeight - distance - BottomPadding);
         this.displayTextFloor(`Level ${this.level}`, distance);
 
         this.addChild(this.floorGraphic);
@@ -53,7 +53,7 @@ export default class Floor extends Container {
     public removePassenger(id: string): void {
         let removedPass = this.passengersQueue.find(pass => pass.id === id);
         if (removedPass) {
-            this.floorGraphic.removeChild(removedPass.passengerGraphic);
+            this.floorGraphic.removeChild(removedPass);
             this.passengersQueue.shift();
             this.updateQueue();
         }
