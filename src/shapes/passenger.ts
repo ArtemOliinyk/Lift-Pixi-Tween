@@ -47,27 +47,6 @@ export default class Passenger extends Container {
         this.addChild(this.passengerGraphic);
     }
 
-    // private moveForward(): void {
-    //
-    //     new TWEEN.Tween(this.passengerGraphic)
-    //         .to({x: -(this.endLevel - this.width * this.positionNumber)}, 2000)
-    //         .onComplete(() => this.canMoveInsideLift())
-    //         .start();
-    // }
-
-    // private canMoveInsideLift() {
-    //     // if (this.houseInstant.lift.passengers.length < LiftCapacity) {
-    //         this.pickEvent = new CustomEvent(PICK_PASSENGER, {
-    //             detail: {
-    //                 passengerGraphic: this,
-    //                 level: this.floorLevel,
-    //                 wantedLevel: this.wantedLevel
-    //             }
-    //         });
-    //         window.dispatchEvent(this.pickEvent);
-    //     // }
-    // }
-
     private moveToQueue(): void {
         const moveLeft = new TWEEN.Tween(this.passengerGraphic)
             .to({x: -(this.endLevel - this.width * this.positionNumber)}, 600);
@@ -77,6 +56,7 @@ export default class Passenger extends Container {
     public moveInsideLift(key: number, count: number) {
         new TWEEN.Tween(this.passengerGraphic)
             .to({x: -(this.endLevel + (key) * this.width)}, 800 / count)
+            .onStart(() => House.getInstance().floors[this.floorLevel - 1].removePassenger(this.id))
             .start();
     }
 
