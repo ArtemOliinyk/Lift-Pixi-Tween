@@ -1,4 +1,4 @@
-import {Graphics, Container} from 'pixi.js';
+import {Container, Graphics} from 'pixi.js';
 import TWEEN from "@tweenjs/tween.js";
 import {
     DistanceBetweenFloors,
@@ -49,23 +49,26 @@ export default class Lift extends Container {
         let passenger = this.pickPassengers();
         if (passenger instanceof Passenger) {
             this.pickPassenger(passenger);
-            // setTimeout(() => this.moveToFloor(), DurationBetweenFloors * Math.abs((this._currentLevel - passenger.floorLevel)) + 100);
             return
         }
         setTimeout(() => this.start(), 3000);
     }
 
-    private findFloor(): Floor | boolean {
-        let neededFloors = House.getInstance().floors.filter(floor => floor.passengersQueue.length > 0);
-        let currentFloor = neededFloors.find(floor => floor.level === this._currentLevel);
-        if (currentFloor)
-            return currentFloor;
-        for (let i = 1; i <= FloorsNumber; i++) {
-            let foundLevel = this.levelFind(i);
-            if (foundLevel)
-                return foundLevel;
+    private findFloor(current: boolean = false): Floor | boolean {
+        if (current) {
+            let neededFloors = House.getInstance().floors.filter(floor => floor.passengersQueue.length > 0);
+            let currentFloor = neededFloors.find(floor => floor.level === this._currentLevel);
+            if (currentFloor instanceof Floor)
+                return currentFloor;
+            return false
+        } else {
+            for (let i = 1; i <= FloorsNumber; i++) {
+                let foundLevel = this.levelFind(i);
+                if (foundLevel)
+                    return foundLevel;
+            }
+            return false;
         }
-        return false;
     }
 
     public levelFind(level: number): Floor | boolean {
@@ -77,14 +80,14 @@ export default class Lift extends Container {
     }
 
     public addCurrentLinePassengers(): void {
-        let countToGoIn = 1;
+        let countToGoIn = 0;
         let passenger = this._passengers[0];
         let floor = House.getInstance().floors[passenger.floorLevel - 1];
 
         for (let i = 0; i < floor.passengersQueue.length; i++) {
-            let nextPass = floor.passengersQueue[i + 1];
+            let nextPass = floor.passengersQueue[i];
             if (nextPass)
-                if ((Math.sign(passenger.floorLevel - passenger.wantedLevel) === Math.sign(nextPass.floorLevel - nextPass.wantedLevel)) && this.isFreePlace() ) {
+                if ((Math.sign(passenger.floorLevel - passenger.wantedLevel) === Math.sign(nextPass.floorLevel - nextPass.wantedLevel)) && this.isFreePlace()) {
                     this._passengers.push(nextPass);
                     countToGoIn += 1;
                 }
@@ -102,8 +105,15 @@ export default class Lift extends Container {
             .onComplete(() => {
                 this._currentLevel = passenger.floorLevel;
                 this._passengers.push(passenger);
-                if (this._passengers.length)
-                    this.pickPassengers(true);
+                passenger.moveInsideLift(this._passengers.length + 1, 1);
+                passenger.passengerGraphic.y = DistanceBetweenFloors * (passenger.floorLevel - 1);
+                this.liftGraphic.addChild(passenger.passengerGraphic);
+                if (this.isFreePlace()) {
+                    let nextPass = this.pickPassengers(true);
+                    if (nextPass instanceof Passenger)
+                        return this.pickPassenger(nextPass);
+                }
+                // this.addCurrentLinePassengers();
                 this.moveToFloor();
             })
             .start();
@@ -112,18 +122,21 @@ export default class Lift extends Container {
     public moveToFloor(): TWEEN.Tween {
         this._passengers.sort((first, second) => (Math.abs(first.floorLevel - first.wantedLevel)) - (Math.abs(second.floorLevel - second.wantedLevel)));
         let nextPassenger = this._passengers[0];
-        console.log(11, nextPassenger.wantedLevel)
         return new TWEEN.Tween(this.liftGraphic)
             .to({y: -DistanceBetweenFloors * (nextPassenger.wantedLevel - 1)}, DurationBetweenFloors * Math.abs((nextPassenger.floorLevel - nextPassenger.wantedLevel)))
             .onComplete(() => {
-                this._currentLevel = nextPassenger.wantedLevel;
-                nextPassenger.moveOut();
-                if (this._passengers.length) {
-                    this.pickPassengers(true);
-                    return this.moveToFloor();
+                    this._currentLevel = nextPassenger.wantedLevel;
+                    nextPassenger.moveOut();
+                    if (this.isFreePlace()) {
+                        let nextPass = this.pickPassengers(true);
+                        if (nextPass instanceof Passenger)
+                            return this.pickPassenger(nextPass);
+                    }
+                    if (this._passengers.length)
+                        return this.moveToFloor();
+                    this.start()
                 }
-                this.start()
-            })
+            )
             .delay(800)
             .start();
     }
@@ -142,8 +155,15 @@ export default class Lift extends Container {
 
     private pickPassengers(onCurrentFloor: boolean = false): Passenger | boolean {
         if (onCurrentFloor) {
-            this.addCurrentLinePassengers();
+            // this.addCurrentLinePassengers();
+            let floor = this.findFloor(true);
+            if (floor instanceof Floor)
+                return floor.passengersQueue[0];
         } else {
+            let currFloor = this.findFloor(true);
+            if (currFloor instanceof Floor) {
+                return currFloor.passengersQueue[0];
+            }
             let floor = this.findFloor();
             if (floor instanceof Floor)
                 return floor.passengersQueue[0];
